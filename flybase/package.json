@@ -1,0 +1,51 @@
+{
+	"name": "flybase",
+	"version": "1.5.8",
+	"description": "Simple REST client for flybase.io",
+	"main": "./index.js",
+	"keywords": [
+		"mongodb",
+		"database",
+		"web",
+		"Data McFly",
+		"flybase",
+		"REST",
+		"socket.io"
+	],
+	"engines": {
+		"node": "*"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/flybaseio/flybase-node.git"
+	},
+	"author": "Roger Stringer",
+	"bugs": {
+		"url": "https://github.com/flybaseio/flybase-node/issues"
+	},
+	"dist": {
+		"shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
+		"tarball": "http://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz"
+	},
+	"dependencies": {
+		"MD5": "1.2.1",
+		"socket.io-client": "1.2.1"
+	},
+	"_from": "flybase@",
+	"_npmVersion": "1.2.21",
+	"_npmUser": {
+		"name": "flybase",
+		"email": "roger@flybase.io"
+	},
+	"maintainers": [
+		"flybase <roger@flybase.io>"
+	],
+	"directories": {},
+	"_shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
+	"_resolved": "https://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz",
+	"homepage": "https://github.com/flybaseio/flybase-node",
+	"license": "ISC"
+}
