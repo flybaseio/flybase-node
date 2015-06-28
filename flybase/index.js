@@ -423,7 +423,7 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 	headers['Content-Type'] = isObject ? 'application/json' : 'text/plain';
 	headers['X-Flybase-API-Key'] = self.apikey;
 	headers['X-Flybase-API-Signature'] = signature;
-	headers['X-DataMCFly-API-Timestamp'] = timestamp;
+	headers['X-Flybase-API-Timestamp'] = timestamp;
 
 	var location = '';
 

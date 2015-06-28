@@ -1,6 +1,6 @@
 {
 	"name": "flybase",
-	"version": "1.5.8",
+	"version": "1.5.9",
 	"description": "Simple REST client for flybase.io",
 	"main": "./index.js",
 	"keywords": [
