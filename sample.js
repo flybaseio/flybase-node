@@ -2,10 +2,10 @@ var api_key = 'YOUR-API-KEY';
 var db = 'test';
 var collection = 'chat';
 
-var datamcfly = require('datamcfly').init(db, collection, api_key);
+var flybase = require('flybase').init(db, collection, api_key);
 
 /* 
-datamcfly.collections( function(object, error){
+flybase.collections( function(object, error){
 	console.log( object );	
 });
 */
@@ -15,7 +15,7 @@ var cb = function(object, error){
 };
 
 var params = {'limit': 20 };
-datamcfly.documents(params, function(data) {
+flybase.documents(params, function(data) {
 	console.log ("Found " + data.count() + " records");
 });
 
@@ -24,9 +24,9 @@ datamcfly.documents(params, function(data) {
     @collection {String}
     @params {Object}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.documents(params, cb);
+//	flybase.documents(params, cb);
 
 
 // Params options
@@ -79,7 +79,7 @@ datamcfly.documents(params, function(data) {
 // upsert = true :: boolean
 
 //	var params = { where: { age: 28 }, asc: ['age'] };
-//		datamcfly.documents('users', params, function(data) {
+//		flybase.documents('users', params, function(data) {
 //	});
 
 /*
@@ -87,11 +87,11 @@ datamcfly.documents(params, function(data) {
     @collection {String}
     @documents {Object or Object array}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.set(documents, cb);
-//	datamcfly.push(documents, cb);
-//	datamcfly.insert(documents, cb);
+//	flybase.set(documents, cb);
+//	flybase.push(documents, cb);
+//	flybase.insert(documents, cb);
 
 /*
     Update document / documents
@@ -99,18 +99,18 @@ datamcfly.documents(params, function(data) {
     @condition {Object or Object array}
     @params {Object}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.update(condition, params, cb);
+//	flybase.update(condition, params, cb);
 
 /*
     Find document by Id
     @collection {String}
     @id {String or Number}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.findId(id, cb);
+//	flybase.findId(id, cb);
 
 /*
     Update document by Id
@@ -118,15 +118,15 @@ datamcfly.documents(params, function(data) {
     @id {String or Number}
     @document {Object}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.updateId(id, document, cb);
+//	flybase.updateId(id, document, cb);
 
 /*
     Delete document by Id
     @collection {String}
     @id {String or Number}
     @cb {Function} :: function(error, object)
-    return {DataMcFly}
+    return {Flybase}
 */
-//	datamcfly.deleteId(id, cb);
+//	flybase.deleteId(id, cb);
