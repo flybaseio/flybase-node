@@ -17,7 +17,7 @@ function Flybase(database, collection, apikey) {
 	this.sessionId;
 	this.room = md5( database + '/' + collection ); 		//	this will be a hash of the room..
 	this.uri = urlParser.parse('http://api.flybase.io/apps/');
-	this.push_uri = urlParser.parse('http://push.flybase.io');
+	this.push_uri = urlParser.parse('https://push.flybase.io');
 	this.startWebSocket( this.room );
 };
 

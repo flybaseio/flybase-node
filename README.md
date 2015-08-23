@@ -1,4 +1,4 @@
-Simple node.js REST client for Flybase.com
+Simple node.js REST client for Flybase.io
 ===================================================
 
 - [Flybase](http://www.flybase.io) Flybase
