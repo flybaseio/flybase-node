@@ -389,6 +389,9 @@ Flybase.prototype.once = function( key, callback ){
 
 //	Send message to notification server...
 Flybase.prototype.trigger = function(event, message){
+	if( typeof message === 'object' ){
+		var message = JSON.stringify( message );
+	}
 	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
 //		console.log("Got response: " + res.statusCode);
 	}).on('error', function(e) {
@@ -396,6 +399,9 @@ Flybase.prototype.trigger = function(event, message){
 	});
 };
 Flybase.prototype.emit  = function(event, message) {
+	if( typeof message === 'object' ){
+		var message = JSON.stringify( message );
+	}
 	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
 //		console.log("Got response: " + res.statusCode);
 	}).on('error', function(e) {
