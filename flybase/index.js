@@ -14,6 +14,9 @@ function Flybase(database, collection, apikey) {
 	this.database = database;
 	this.collection = collection;
 	this.currentItem;
+	this.debug = false;
+	this.mockconsole = mockconsole();
+
 	this.sessionId;
 	this.room = md5( database + '/' + collection ); 		//	this will be a hash of the room..
 	this.uri = urlParser.parse('http://api.flybase.io/apps/');
@@ -186,6 +189,25 @@ function toParams(obj, apikey) {
 // PROTOTYPES
 // ======================================================
 
+Flybase.prototype.setDebug = function( bool ){
+	this.debug = bool;
+}
+
+// We also allow a 'logger' option. It can be any object that implements
+// log, warn, and error methods.
+// We log nothing by default, following "the rule of silence":
+// http://www.linfo.org/rule_of_silence.html
+Flybase.prototype.logger = function( callback ){
+	// we assume that if you're in debug mode and you didn't
+	// pass in a logger, you actually want to log as much as
+	// possible.
+	if (this.debug) {
+		return callback || console;
+	} else {
+		return callback || this.mockconsole;
+	}
+};
+
 /*
 	Internal function
 	@path {String}
@@ -221,18 +243,18 @@ Flybase.prototype.startWebSocket = function ( channel ){
 
 	this.socket.on("connect", function() {
 		_this.sessionId = _this.socket.io.engine.id;
-		console.log( "Connected" );
+		_this.logger().log( "Connected" );
 	}).on("disconnect", function() {
-		console.log( "Disconnected" );
+		_this.logger().log( "Disconnected" );
 	}).on("connecting",function(){
-		console.log( "Connecting" );
+		_this.logger().log( "Connecting" );
 	});
   
 	this.socket.on('connected', function (data) {
-		console.log( data );
+		_this.logger().log( data );
 	});
 	this.socket.on('status', function (data) {
-		console.log( data );
+		_this.logger().log( data );
 	});
 
 //	this.socket.emit('status', "Hello Status");
@@ -341,7 +363,7 @@ Flybase.prototype.onDisconnect = function( callback ){
 }
 
 Flybase.prototype.Disconnected = function( data ) {
-//	console.log('A> ' + this.sessionId );
+//	this.logger().log('A> ' + this.sessionId );
 	var endpoint = 'disconnect/' + this.sessionId + '/' + this.database + '/' + this.collection;
 	this.rpostp(endpoint, data );
 };
@@ -393,9 +415,9 @@ Flybase.prototype.trigger = function(event, message){
 		var message = JSON.stringify( message );
 	}
 	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
-//		console.log("Got response: " + res.statusCode);
+//		this.logger().log("Got response: " + res.statusCode);
 	}).on('error', function(e) {
-//		console.log("Got error: " + e.message);
+//		this.logger().log("Got error: " + e.message);
 	});
 };
 Flybase.prototype.emit  = function(event, message) {
@@ -403,9 +425,9 @@ Flybase.prototype.emit  = function(event, message) {
 		var message = JSON.stringify( message );
 	}
 	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
-//		console.log("Got response: " + res.statusCode);
+//		this.logger().log("Got response: " + res.statusCode);
 	}).on('error', function(e) {
-//		console.log("Got error: " + e.message);
+//		this.logger().log("Got error: " + e.message);
 	});
 };
 
@@ -449,7 +471,7 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 			headers: headers 
 	};
 
-//	console.log( location + toParams(params, self.apikey));
+//	this.logger().log( location + toParams(params, self.apikey));
 
 	var response = function (res) {
 		var buffer = '';
@@ -532,7 +554,7 @@ Flybase.prototype.rconnect = function(path, method, data, params, callback) {
 			headers: headers 
 	};
 
-//	console.log( location + toParams(params, self.apikey));
+//	this.logger().log( location + toParams(params, self.apikey));
 
 	var response = function (res) {
 		var buffer = '';
@@ -725,7 +747,7 @@ Flybase.prototype.transaction = function( updateFunction, cb){
 	var e = e[0];
 	var d = c.update( e );
 	if ( is_void(d) ) {
-		console.log("transaction failed: Data returned " + d);
+		this.logger().log("transaction failed: Data returned " + d);
 		c.status = 1;
 	}else{
 		if( is_object( d ) ){
@@ -738,7 +760,7 @@ Flybase.prototype.transaction = function( updateFunction, cb){
 //			delete the record since it was NULL..
 			this.deleteId( e._id, cb );
 		}
-		console.log( d );
+		this.logger().log( d );
 	}
 };
 
@@ -890,6 +912,17 @@ function merge() {
 	return obj;
 };
 
+function mockconsole(){
+	var methods = "assert,count,debug,dir,dirxml,error,exception,group,groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,time,timeEnd,trace,warn".split(",");
+	var l = methods.length;
+	var fn = function () {};
+	var mockconsoleObj = {};
+	
+	while (l--) {
+	    mockconsoleObj[methods[l]] = fn;
+	}
+	return mockconsoleObj;
+}
 
 
 // ======================================================
