@@ -414,21 +414,23 @@ Flybase.prototype.trigger = function(event, message){
 	if( typeof message === 'object' ){
 		var message = JSON.stringify( message );
 	}
-	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
-//		this.logger().log("Got response: " + res.statusCode);
-	}).on('error', function(e) {
-//		this.logger().log("Got error: " + e.message);
-	});
+	var data = {
+		room: this.room,
+		event: event,
+		message: message
+	}
+	this.socket.emit("soundout", data);	
 };
 Flybase.prototype.emit  = function(event, message) {
 	if( typeof message === 'object' ){
 		var message = JSON.stringify( message );
 	}
-	http.get(this.push_uri+'/emit/' + this.room + '/' + event + '/' + message, function(res) {
-//		this.logger().log("Got response: " + res.statusCode);
-	}).on('error', function(e) {
-//		this.logger().log("Got error: " + e.message);
-	});
+	var data = {
+		room: this.room,
+		event: event,
+		message: message
+	}
+	this.socket.emit("soundout", data);	
 };
 
 
