@@ -420,16 +420,34 @@ Flybase.prototype.once = function( key, callback ){
 			});
 		}
 	}else{
-		self.socket.on( key, function(res){
-			if( key == 'added' || key == 'changed' || key == 'removed' || key == 'online' ){
-				var data = self.processData( res );
-				self.currentItem = data;
-			}else{
-				var data = res;
-			}
-			callback( data );
-			return true;
-		});
+		if( callback ){
+			self.socket.on( key, function(res){
+				if( key == 'added' || key == 'changed' || key == 'removed' || key == 'online' ){
+					var data = self.processData( res );
+					self.currentItem = data;
+				}else{
+					var data = res;
+				}
+				callback( data );
+				return true;
+			});
+		}else{
+			return new Promise(function(resolve, reject) {
+				self.socket.on( key, function(res){
+					if( key == 'added' || key == 'changed' || key == 'removed' || key == 'online' ){
+						var data = self.processData( res );
+						self.currentItem = data;
+					}else{
+						var data = res;
+					}
+					if( data ){
+						resolve( data );
+					}else{
+						reject( data );
+					}
+				});
+			});			
+		}
 	}
 };
 
@@ -670,17 +688,56 @@ Flybase.prototype.databases = function(cb) {
 */
 Flybase.prototype.set = function(documents, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
+	var self = this;
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);		
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + self.collection, 'POST', documents, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});		
+	}
 };
 
 Flybase.prototype.push = function(documents, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);		
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + self.collection, 'POST', documents, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}
 };
 
 Flybase.prototype.insert = function(documents, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
+	var self = this;
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + self.collection, 'POST', documents, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});		
+	}
+//	return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
 };
 
 Flybase.prototype.rpostp = function(endpoint, data, callback){
@@ -701,7 +758,19 @@ Flybase.prototype.rpostp = function(endpoint, data, callback){
 */
 Flybase.prototype.update = function(condition, params, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection, 'PUT', condition, params, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + self.collection, 'PUT', condition, params, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + self.collection, 'PUT', condition, params, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});		
+	}
 };
 
 /*
@@ -712,7 +781,20 @@ Flybase.prototype.update = function(condition, params, cb) {
 */
 Flybase.prototype.findId = function(id, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'GET', null, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + self.collection + '/' + id, 'GET', null, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'GET', null, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}
+//	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'GET', null, null, cb);
 };
 
 /*
@@ -724,12 +806,36 @@ Flybase.prototype.findId = function(id, cb) {
 */
 Flybase.prototype.updateDocument = function(id, document, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}
 };
 
 Flybase.prototype.updateId = function(id, document, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}
 };
 
 /*
@@ -752,15 +858,51 @@ Flybase.prototype.drop = function(cb) {
 */
 Flybase.prototype.remove = function(id, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}	
 };
 Flybase.prototype.deleteDocument = function(id, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}			
 };
 Flybase.prototype.deleteId = function(id, cb) {
 	var self = this;
-	return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	if( cb ){
+		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}			
 };
 
 Flybase.prototype.transaction = function( updateFunction, cb){
