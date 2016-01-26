@@ -810,7 +810,7 @@ Flybase.prototype.updateDocument = function(id, document, cb) {
 		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
-			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, function(data, err){
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'PUT', document, null, function(data, err){
 				if( data ){
 					resolve( data );
 				}else{
@@ -827,7 +827,7 @@ Flybase.prototype.updateId = function(id, document, cb) {
 		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
-			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'PUT', document, null, function(data, err){
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'PUT', document, null, function(data, err){
 				if( data ){
 					resolve( data );
 				}else{
@@ -859,10 +859,10 @@ Flybase.prototype.drop = function(cb) {
 Flybase.prototype.remove = function(id, cb) {
 	var self = this;
 	if( cb ){
-		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
+		return self.connect(self.database + '/collections/' + self.collection + '/' + id, 'DELETE', null, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
-			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'DELETE', null, null, function(data, err){
 				if( data ){
 					resolve( data );
 				}else{
@@ -878,7 +878,7 @@ Flybase.prototype.deleteDocument = function(id, cb) {
 		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
-			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'DELETE', null, null, function(data, err){
 				if( data ){
 					resolve( data );
 				}else{
@@ -894,7 +894,7 @@ Flybase.prototype.deleteId = function(id, cb) {
 		return self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
-			self.connect(self.database + '/collections/' + this.collection + '/' + id, 'DELETE', null, null, function(data, err){
+			self.connect(self.database + '/collections/' + self.collection + '/' + id, 'DELETE', null, null, function(data, err){
 				if( data ){
 					resolve( data );
 				}else{

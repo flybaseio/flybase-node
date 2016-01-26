@@ -1,6 +1,6 @@
 {
   "name": "flybase",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "Flybase.io library for Node.js",
   "main": "./index.js",
   "keywords": [
