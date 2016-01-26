@@ -1,7 +1,7 @@
 var urlParser = require('url');
 var http = require('http');
 var md5 = require('MD5');
-var Bluebird   = require('bluebird');
+var Promise = require('es6-promise').Promise;
 /*
 	Flybase class
 	@database {String}
@@ -376,12 +376,12 @@ Flybase.prototype.on = function( key, callback ){
 			self.documents(this.query,callback);
 		}else{
 //			promise mode...
-			return new Bluebird(function (resolve, reject) {
+			return new Promise(function(resolve, reject) {
 				self.documents(this.query,function(data){
 					if( data.count() ){
 						resolve( data );
 					}else{
-						return reject( data );
+						reject( data );
 					}
 				});	
 			});
@@ -409,12 +409,12 @@ Flybase.prototype.once = function( key, callback ){
 			self.documents(this.query,callback);
 		}else{
 //			promise mode...
-			return new Bluebird(function (resolve, reject) {
+			return new Promise(function(resolve, reject) {
 				self.documents(this.query,function(data){
 					if( data.count() ){
 						resolve( data );
 					}else{
-						return reject( data );
+						reject( data );
 					}
 				});	
 			});
