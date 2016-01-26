@@ -1,51 +1,53 @@
 {
-	"name": "flybase",
-	"version": "1.6.3",
-	"description": "Flybase.io library for Node.js",
-	"main": "./index.js",
-	"keywords": [
-		"mongodb",
-		"database",
-		"web",
-		"Data McFly",
-		"flybase",
-		"REST",
-		"socket.io"
-	],
-	"engines": {
-		"node": "*"
-	},
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/flybaseio/flybase-node.git"
-	},
-	"author": "Roger Stringer",
-	"bugs": {
-		"url": "https://github.com/flybaseio/flybase-node/issues"
-	},
-	"dist": {
-		"shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
-		"tarball": "http://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz"
-	},
-	"dependencies": {
-		"MD5": "1.2.1",
-		"socket.io-client": "1.2.1"
-	},
-	"_from": "flybase@",
-	"_npmVersion": "1.2.21",
-	"_npmUser": {
-		"name": "flybase",
-		"email": "roger@flybase.io"
-	},
-	"maintainers": [
-		"flybase <roger@flybase.io>"
-	],
-	"directories": {},
-	"_shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
-	"_resolved": "https://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz",
-	"homepage": "https://github.com/flybaseio/flybase-node",
-	"license": "ISC"
+  "name": "flybase",
+  "version": "1.7.0",
+  "description": "Flybase.io library for Node.js",
+  "main": "./index.js",
+  "keywords": [
+    "mongodb",
+    "database",
+    "web",
+    "Data McFly",
+    "flybase",
+    "REST",
+    "promises",
+    "socket.io"
+  ],
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flybaseio/flybase-node.git"
+  },
+  "author": "Roger Stringer",
+  "bugs": {
+    "url": "https://github.com/flybaseio/flybase-node/issues"
+  },
+  "dist": {
+    "shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
+    "tarball": "http://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz"
+  },
+  "dependencies": {
+    "MD5": "1.2.1",
+    "bluebird": "3.1.4",
+    "socket.io-client": "1.2.1"
+  },
+  "_from": "flybase@",
+  "_npmVersion": "1.2.21",
+  "_npmUser": {
+    "name": "flybase",
+    "email": "roger@flybase.io"
+  },
+  "maintainers": [
+    "flybase <roger@flybase.io>"
+  ],
+  "directories": {},
+  "_shasum": "9ac5f97dfe21c2ac52ded88f299f02e51314a971",
+  "_resolved": "https://registry.npmjs.org/flybase/-/flybase-1.1.1.tgz",
+  "homepage": "https://github.com/flybaseio/flybase-node",
+  "license": "ISC"
 }

@@ -1,7 +1,7 @@
 var urlParser = require('url');
 var http = require('http');
 var md5 = require('MD5');
-
+var Bluebird   = require('bluebird');
 /*
 	Flybase class
 	@database {String}
@@ -370,14 +370,26 @@ Flybase.prototype.Disconnected = function( data ) {
 
 
 Flybase.prototype.on = function( key, callback ){
+	var self = this;
 	if( key == 'value' ){
-		this.documents(this.query,callback);
-		//	once the initial query finishes, listen for any new records...
-//		this.on('added', callback);
+		if( callback ){
+			self.documents(this.query,callback);
+		}else{
+//			promise mode...
+			return new Bluebird(function (resolve, reject) {
+				self.documents(this.query,function(data){
+					if( data.count() ){
+						resolve( data );
+					}else{
+						return reject( data );
+					}
+				});	
+			});
+		}
+//	once the initial query finishes, listen for any new records...
+//		self.on('added', callback);
 	}else{
-		var self = this;
-
-		this.socket.on( key, function(res){
+		self.socket.on( key, function(res){
 			if( key == 'added' || key == 'changed' || key == 'removed' || key == 'online' ){
 				var data = self.processData( res );
 				self.currentItem = data;
@@ -390,13 +402,25 @@ Flybase.prototype.on = function( key, callback ){
 };
 
 Flybase.prototype.once = function( key, callback ){
+	var self = this;
 	if( key == 'value' ){
 		//	check query based on other functions.. 
-		this.listDocuments(callback,this.query);
+		if( callback ){
+			self.documents(this.query,callback);
+		}else{
+//			promise mode...
+			return new Bluebird(function (resolve, reject) {
+				self.documents(this.query,function(data){
+					if( data.count() ){
+						resolve( data );
+					}else{
+						return reject( data );
+					}
+				});	
+			});
+		}
 	}else{
-		var self = this;
-		
-		this.socket.on( key, function(res){
+		self.socket.on( key, function(res){
 			if( key == 'added' || key == 'changed' || key == 'removed' || key == 'online' ){
 				var data = self.processData( res );
 				self.currentItem = data;
