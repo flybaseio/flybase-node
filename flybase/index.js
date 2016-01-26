@@ -373,11 +373,11 @@ Flybase.prototype.on = function( key, callback ){
 	var self = this;
 	if( key == 'value' ){
 		if( callback ){
-			self.documents(this.query,callback);
+			self.documents(self.query,callback);
 		}else{
 //			promise mode...
 			return new Promise(function(resolve, reject) {
-				self.documents(this.query,function(data){
+				self.documents(self.query,function(data){
 					if( data.count() ){
 						resolve( data );
 					}else{
@@ -406,11 +406,11 @@ Flybase.prototype.once = function( key, callback ){
 	if( key == 'value' ){
 		//	check query based on other functions.. 
 		if( callback ){
-			self.documents(this.query,callback);
+			self.documents(self.query,callback);
 		}else{
 //			promise mode...
 			return new Promise(function(resolve, reject) {
-				self.documents(this.query,function(data){
+				self.documents(self.query,function(data){
 					if( data.count() ){
 						resolve( data );
 					}else{
