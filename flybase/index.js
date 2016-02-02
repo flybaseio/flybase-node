@@ -15,6 +15,7 @@ function Flybase(database, collection, apikey) {
 	this.collection = collection;
 	this.currentItem;
 	this.debug = false;
+	this.joins = {};
 	this.mockconsole = mockconsole();
 
 	this.sessionId;
@@ -369,6 +370,70 @@ Flybase.prototype.Disconnected = function( data ) {
 };
 
 
+Flybase.prototype.lookup = function( value, collections, callback ){
+	var self = this;
+	self.joins.value = value;
+	self.joins.collections = collections;
+
+	//	ok, let's start the query building..
+	var returnCount = 0;
+	var expectedCount = self.joins.collections.length;
+	var mergedObject = {};
+	if( callback ){
+		//	build our queries
+		self.joins.collections.forEach(function (p) {
+			var p2 = p.split(".");
+			var coll = p2[0];
+			var field = p2[1];
+			var query = {
+				q: "{"+field+":"+self.joins.value+"}",
+				l: 1
+			};
+			self.documents2(query, coll, function(data){
+				if( data.count() ){
+					var rec = data.first().value();
+					if( rec[field] === self.joins.value ){
+						delete rec._id;
+						self.extend( mergedObject, rec );
+					}
+				}
+				if (++returnCount === expectedCount) {
+					callback( mergedObject );
+				}
+			});
+		});
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.joins.collections.forEach(function (p) {
+				var p2 = p.split(".");
+				var coll = p2[0];
+				var field = p2[1];
+				var query = {
+					q: "{"+field+":"+self.joins.value+"}",
+					l: 1
+				};
+				self.documents2(query, coll, function(data){
+					if( data.count() ){
+						var rec = data.first().value();
+						if( rec[field] === self.joins.value ){
+							delete rec._id;
+							self.extend( mergedObject, rec );
+						}
+					}
+					if (++returnCount === expectedCount) {
+						if( mergedObject.length ){
+							resolve( mergedObject );
+						}else{
+							reject( mergedObject );
+						}
+					}
+				});
+			});
+		});		
+	}
+	return this;
+}
+
 Flybase.prototype.on = function( key, callback ){
 	var self = this;
 	if( key == 'value' ){
@@ -669,6 +734,10 @@ Flybase.prototype.listDocuments = function(cb, params) {
 Flybase.prototype.documents = function(params, cb) {
 	var self = this;
 	return self.connect(self.database + '/collections/' + this.collection, 'GET', null, params, cb);
+};
+Flybase.prototype.documents2 = function(params, collection, cb) {
+	var self = this;
+	return self.connect(self.database + '/collections/' + collection, 'GET', null, params, cb);
 };
 
 /*
