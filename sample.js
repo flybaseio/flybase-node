@@ -2,23 +2,41 @@ var api_key = 'YOUR-API-KEY';
 var db = 'test';
 var collection = 'chat';
 
-var flybase = require('flybase').init(db, collection, api_key);
+var flybase = require('./flybase').init(db, collection, api_key);
+
+flybase.push( {name:"node", text:"test"}, function(data){
+	console.log("pushed good");
+});
+
+
+var cb = function(object, error){
+	console.log( object );	
+};
+
+console.log( 'connected to ' + flybase.toString() );
+
+var params = {'limit': 20 };
+flybase.documents(params, function(data, err) {
+	console.log ("Found " + data.count() + " records");
+});
+
+flybase.on('added', function (data) {
+	var message = data.value();
+	console.log( message.name+': '+message.text );
+});
+
+flybase.limitToLast(10).on('value', function (data) {
+	data.forEach( function( message ){
+		var message = message.value();
+		console.log( message.name+': '+message.text );
+	});
+});
 
 /* 
 flybase.collections( function(object, error){
 	console.log( object );	
 });
 */
-
-var cb = function(object, error){
-	console.log( object );	
-};
-
-var params = {'limit': 20 };
-flybase.documents(params, function(data) {
-	console.log ("Found " + data.count() + " records");
-});
-
 /*
     Get all documents
     @collection {String}

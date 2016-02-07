@@ -2,6 +2,8 @@ var urlParser = require('url');
 var http = require('http');
 var md5 = require('md5');
 var Promise = require('es6-promise').Promise;
+var fetch = require('node-fetch');
+
 /*
 	Flybase class
 	@database {String}
@@ -20,8 +22,9 @@ function Flybase(database, collection, apikey) {
 
 	this.sessionId;
 	this.room = md5( database + '/' + collection ); 		//	this will be a hash of the room..
-	this.uri = urlParser.parse('http://api.flybase.io/apps/');
-	this.push_uri = urlParser.parse('https://push.flybase.io');
+	this.api_uri = 'https://api.flybase.io/apps/';
+	this.uri = 'https://api.flybase.io/apps/';
+	this.push_uri = 'https://push.flybase.io';
 	this.startWebSocket( this.room );
 };
 
@@ -569,58 +572,23 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 	else
 		location = uri.pathname + path;
 
-	var options = { 
-			protocol: uri.protocol, 
-			auth: uri.auth, 
-			method: method || 'GET', 
-			hostname: uri.hostname, 
-			port: uri.port, 
-			path: location + toParams(params, self.apikey), 
-			agent:false, 
-			headers: headers 
-	};
+	var url = self.uri + path + toParams(params, self.apikey);
 
-//	this.logger().log( location + toParams(params, self.apikey));
-
-	var response = function (res) {
-		var buffer = '';
-
-		res.on('data', function(chunk) {
-			buffer += chunk.toString('utf8');
-		})
-
-		req.setTimeout(exports.timeout, function() {
-			callback(null,new Error('timeout'));
-		});
-
-		res.on('end', function() {
-			var data = parseJSON(buffer.trim());
-			var error = null;
-
-			if (res.statusCode > 200) {				
-				error = new Error(res.statusCode + ' (' + (data.message || '') + ') ');
-				data = null;
-			}
-
-			var data = self.processData( data );
-
-			self.currentItem = data;
-			callback(data,error);
-		});
-	};
-
-	var con = options.protocol === 'http:' ? http : http;
-	var req = callback ? con.request(options, response) : con.request(options);
-
-	req.on('error', function(err) {
-		callback(null,err);
+	fetch(url, {
+		method: method || 'GET',
+		body: JSON.stringify( data ),
+		headers: headers
+	}).then(function(response) {
+		if (response.status >= 200 && response.status < 400){
+			response.text().then(function(responseText) {
+				var data = self.processData( responseText );
+				self.currentItem = data;
+				callback( data );
+			});
+		}
+	}, function(error) {
+		callback( null, error );
 	});
-
-	if (isObject)
-		req.end(JSON.stringify(data));
-	else
-		req.end();
-
 	return self;
 };
 
@@ -643,7 +611,7 @@ Flybase.prototype.rconnect = function(path, method, data, params, callback) {
 	headers['Content-Type'] = isObject ? 'application/json' : 'text/plain';
 	headers['X-Flybase-API-Key'] = self.apikey;
 	headers['X-Flybase-API-Signature'] = signature;
-	headers['X-DataMCFly-API-Timestamp'] = timestamp;
+	headers['X-Flybase-API-Timestamp'] = timestamp;
 
 	var location = '';
 
@@ -652,58 +620,23 @@ Flybase.prototype.rconnect = function(path, method, data, params, callback) {
 	else
 		location = uri.pathname + path;
 
-	var options = { 
-			protocol: uri.protocol, 
-			auth: uri.auth, 
-			method: method || 'GET', 
-			hostname: uri.hostname, 
-			port: uri.port, 
-			path: location + toParams(params, self.apikey), 
-			agent:false, 
-			headers: headers 
-	};
+	var url = self.uri + path + toParams(params, self.apikey);
 
-//	this.logger().log( location + toParams(params, self.apikey));
-
-	var response = function (res) {
-		var buffer = '';
-
-		res.on('data', function(chunk) {
-			buffer += chunk.toString('utf8');
-		})
-
-		req.setTimeout(exports.timeout, function() {
-			callback(null,new Error('timeout'));
-		});
-
-		res.on('end', function() {
-			var data = parseJSON(buffer.trim());
-			var error = null;
-
-			if (res.statusCode > 200) {				
-				error = new Error(res.statusCode + ' (' + (data.message || '') + ') ');
-				data = null;
-			}
-
-			var data = self.processData( data );
-
-			self.currentItem = data;
-			callback(data,error);
-		});
-	};
-
-	var con = options.protocol === 'http:' ? http : http;
-	var req = callback ? con.request(options, response) : con.request(options);
-
-	req.on('error', function(err) {
-		callback(null,err);
+	fetch(url, {
+		method: method || 'GET',
+		body: JSON.stringify( data ),
+		headers: headers
+	}).then(function(response) {
+		if (response.status >= 200 && response.status < 400){
+			response.text().then(function(responseText) {
+				var data = self.processData( responseText );
+				self.currentItem = data;
+				callback( data );
+			});
+		}
+	}, function(error) {
+		callback( null, error );
 	});
-
-	if (isObject)
-		req.end(JSON.stringify(data));
-	else
-		req.end();
-
 	return self;
 };
 
