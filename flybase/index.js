@@ -1,15 +1,11 @@
 var urlParser = require('url');
 var http = require('http');
-var md5 = require('MD5');
+var md5 = require('md5');
 var Promise = require('es6-promise').Promise;
-
-var fetch = require('node-fetch');
-fetch.Promise = require('bluebird');
-
 /*
 	Flybase class
 	@database {String}
-    @collection {String}
+    @collection {String}
 	@key {String} :: get your key from http://app.flybase.io/
 */
 function Flybase(database, collection, apikey) {
@@ -549,7 +545,8 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 
 	var self = this;
 
-	if (path[0] === '/') path = path.substring(1);
+	if (path[0] === '/')
+		path = path.substring(1);
 
 	var uri = self.uri;
 	var type = typeof(data);
@@ -565,68 +562,6 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 	headers['X-Flybase-API-Signature'] = signature;
 	headers['X-Flybase-API-Timestamp'] = timestamp;
 
-	var location = '';
-
-	if (path[0] === '#')
-		location = path.substring(1);
-	else
-		location = uri.pathname + path;
-
-	var url = self.uri + path + toParams(params, self.apikey);
-	fetch(url, {
-		method: method || 'GET',
-		body: JSON.stringify(data),
-		headers: headers
-	}).then(function(response) {
-		if (response.status >= 200 && response.status < 400){
-			var res = res.text();
-			var data = self.processData( res );
-			self.currentItem = data;
-			callback( data, null );
-		}
-	}, function(error) {
-		callback( null, error );
-	})	
-	return self;
-};
-
-Flybase.prototype.rconnect = function(path, method, data, params, callback) {
-
-	var self = this;
-
-	if (path[0] === '/')
-		path = path.substring(1);
-
-	var uri = self.push_uri;
-	var type = typeof(data);
-	var isObject = type === 'object' || type === 'array';
-
-	var headers = {};
-
-	var timestamp = Math.round(+new Date / 1000);
-	var signature = SHA1(self.apikey + ' ' + data + ' ' + timestamp);
-
-	headers['Content-Type'] = isObject ? 'application/json' : 'text/plain';
-	headers['X-Flybase-API-Key'] = self.apikey;
-	headers['X-Flybase-API-Signature'] = signature;
-	headers['X-Flybase-API-Timestamp'] = timestamp;
-
-	var url = self.push_uri + path + toParams(params, self.apikey);
-	fetch(url, {
-		method: method || 'GET',
-		body: JSON.stringify(data),
-		headers: headers
-	}).then(function(response) {
-		if (response.status >= 200 && response.status < 400){
-			var res = res.text();
-			var data = self.processData( res );
-			self.currentItem = data;
-			callback( data, null );
-		}
-	}, function(error) {
-		callback( null, error );
-	})	
-/*
 	var location = '';
 
 	if (path[0] === '#')
@@ -685,7 +620,90 @@ Flybase.prototype.rconnect = function(path, method, data, params, callback) {
 		req.end(JSON.stringify(data));
 	else
 		req.end();
-*/
+
+	return self;
+};
+
+Flybase.prototype.rconnect = function(path, method, data, params, callback) {
+
+	var self = this;
+
+	if (path[0] === '/')
+		path = path.substring(1);
+
+	var uri = self.push_uri;
+	var type = typeof(data);
+	var isObject = type === 'object' || type === 'array';
+
+	var headers = {};
+
+	var timestamp = Math.round(+new Date / 1000);
+	var signature = SHA1(self.apikey + ' ' + data + ' ' + timestamp);
+
+	headers['Content-Type'] = isObject ? 'application/json' : 'text/plain';
+	headers['X-Flybase-API-Key'] = self.apikey;
+	headers['X-Flybase-API-Signature'] = signature;
+	headers['X-DataMCFly-API-Timestamp'] = timestamp;
+
+	var location = '';
+
+	if (path[0] === '#')
+		location = path.substring(1);
+	else
+		location = uri.pathname + path;
+
+	var options = { 
+			protocol: uri.protocol, 
+			auth: uri.auth, 
+			method: method || 'GET', 
+			hostname: uri.hostname, 
+			port: uri.port, 
+			path: location + toParams(params, self.apikey), 
+			agent:false, 
+			headers: headers 
+	};
+
+//	this.logger().log( location + toParams(params, self.apikey));
+
+	var response = function (res) {
+		var buffer = '';
+
+		res.on('data', function(chunk) {
+			buffer += chunk.toString('utf8');
+		})
+
+		req.setTimeout(exports.timeout, function() {
+			callback(null,new Error('timeout'));
+		});
+
+		res.on('end', function() {
+			var data = parseJSON(buffer.trim());
+			var error = null;
+
+			if (res.statusCode > 200) {				
+				error = new Error(res.statusCode + ' (' + (data.message || '') + ') ');
+				data = null;
+			}
+
+			var data = self.processData( data );
+
+			self.currentItem = data;
+			callback(data,error);
+		});
+	};
+
+	var con = options.protocol === 'http:' ? http : http;
+	var req = callback ? con.request(options, response) : con.request(options);
+
+	req.on('error', function(err) {
+		callback(null,err);
+	});
+
+	if (isObject)
+		req.end(JSON.stringify(data));
+	else
+		req.end();
+
 	return self;
 };
 
