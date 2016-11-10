@@ -23,6 +23,7 @@ function Flybase(database, collection, apikey) {
 	this.sessionId;
 	this.room = md5( database + '/' + collection ); 		//	this will be a hash of the room..
 	this.api_uri = 'https://api.flybase.io/apps/';
+	this.queue_uri = 'https://api.flybase.io/queue/';
 	this.uri = 'https://api.flybase.io/apps/';
 	this.push_uri = 'https://push.flybase.io';
 	this.startWebSocket( this.room );
@@ -81,7 +82,7 @@ function toParams(obj, apikey) {
 			case 'query':
 			case 'where':
 				buffer.push('q=' + encodeURIComponent(JSON.stringify(value)));
-				break;		
+				break;
 
 			case 'include':
 
@@ -253,7 +254,7 @@ Flybase.prototype.startWebSocket = function ( channel ){
 	}).on("connecting",function(){
 		_this.logger().log( "Connecting" );
 	});
-  
+
 	this.socket.on('connected', function (data) {
 		_this.logger().log( data );
 	});
@@ -271,7 +272,7 @@ Flybase.prototype.startWebSocket = function ( channel ){
 };
 
 /*
-	isReady is a function that makes sure the connection is done, this is recommended by anything related to the connection to the real-time server.	
+	isReady is a function that makes sure the connection is done, this is recommended by anything related to the connection to the real-time server.
 */
 Flybase.prototype.isReady = function( callback ){
 	var _this = this;
@@ -334,7 +335,7 @@ Flybase.prototype.limitToLast = function( n ){
 
 Flybase.prototype.Connected = function( callback ){
 	this.onOnline( callback );
-	this.onOffline( callback );	
+	this.onOffline( callback );
 };
 
 Flybase.prototype.onOnline = function( callback ){
@@ -432,7 +433,7 @@ Flybase.prototype.lookup = function( value, collections, callback ){
 					}
 				});
 			});
-		});		
+		});
 	}
 	return this;
 }
@@ -451,7 +452,7 @@ Flybase.prototype.on = function( key, callback ){
 					}else{
 						reject( data );
 					}
-				});	
+				});
 			});
 		}
 //	once the initial query finishes, listen for any new records...
@@ -472,7 +473,7 @@ Flybase.prototype.on = function( key, callback ){
 Flybase.prototype.once = function( key, callback ){
 	var self = this;
 	if( key == 'value' ){
-		//	check query based on other functions.. 
+		//	check query based on other functions..
 		if( callback ){
 			self.documents(self.query,callback);
 		}else{
@@ -484,7 +485,7 @@ Flybase.prototype.once = function( key, callback ){
 					}else{
 						reject( data );
 					}
-				});	
+				});
 			});
 		}
 	}else{
@@ -514,7 +515,7 @@ Flybase.prototype.once = function( key, callback ){
 						reject( data );
 					}
 				});
-			});			
+			});
 		}
 	}
 };
@@ -529,7 +530,7 @@ Flybase.prototype.trigger = function(event, message){
 		event: event,
 		message: message
 	}
-	this.socket.emit("soundout", data);	
+	this.socket.emit("soundout", data);
 };
 Flybase.prototype.emit  = function(event, message) {
 	if( typeof message === 'object' ){
@@ -540,7 +541,7 @@ Flybase.prototype.emit  = function(event, message) {
 		event: event,
 		message: message
 	}
-	this.socket.emit("soundout", data);	
+	this.socket.emit("soundout", data);
 };
 
 
@@ -582,6 +583,65 @@ Flybase.prototype.connect = function(path, method, data, params, callback) {
 		if (response.status >= 200 && response.status < 400){
 			response.text().then(function(responseText) {
 				var data = self.processData( responseText );
+				self.currentItem = data;
+				callback( data );
+			});
+		}
+	}, function(error) {
+		callback( null, error );
+	});
+	return self;
+};
+
+Flybase.prototype.qconnect = function(path, method, data, params, callback) {
+
+	var self = this;
+
+	if (path[0] === '/')
+		path = path.substring(1);
+
+	var uri = self.uri;
+	var type = typeof(data);
+	var isObject = type === 'object' || type === 'array';
+
+	var headers = {};
+
+	var timestamp = Math.round(+new Date / 1000);
+	var signature = SHA1(self.apikey + ' ' + data + ' ' + timestamp);
+
+	headers['Content-Type'] = isObject ? 'application/json' : 'text/plain';
+	headers['X-Flybase-API-Key'] = self.apikey;
+	headers['X-Flybase-API-Signature'] = signature;
+	headers['X-Flybase-API-Timestamp'] = timestamp;
+
+	var location = '';
+
+	if (path[0] === '#')
+		location = path.substring(1);
+	else
+		location = uri.pathname + path;
+
+	var url = self.queue_uri + path + toParams(params, self.apikey);
+//	console.log( url );
+	fetch(url, {
+		method: method || 'GET',
+		body: JSON.stringify( data ),
+		headers: headers
+	}).then(function(response) {
+		if (response.status >= 200 && response.status < 400){
+			response.text().then(function(responseText) {
+				var data = responseText;
+				var IS_JSON = true;
+				try{
+					var json = JSON.parse( data );
+				}catch(err){
+					IS_JSON = false;
+				}
+
+				if( IS_JSON ){
+					var data = json;
+				}
+//				var data = self.processData( responseText );
 				self.currentItem = data;
 				callback( data );
 			});
@@ -692,7 +752,7 @@ Flybase.prototype.set = function(documents, cb) {
 	var self = this;
 	var self = this;
 	if( cb ){
-		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);		
+		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
 			self.connect(self.database + '/collections/' + self.collection, 'POST', documents, null, function(data, err){
@@ -702,14 +762,44 @@ Flybase.prototype.set = function(documents, cb) {
 					reject( false );
 				}
 			});
-		});		
+		});
 	}
 };
+
+// queue
+
+Flybase.prototype.enqueue = function(documents, cb) {
+	var self = this;
+	if( cb ){
+		return self.qconnect(self.database, 'POST', documents, null, cb);
+	}else{
+		return new Promise(function(resolve, reject) {
+			self.qconnect(self.database, 'POST', documents, null, function(data, err){
+				if( data ){
+					resolve( data );
+				}else{
+					reject( false );
+				}
+			});
+		});
+	}
+};
+
+Flybase.prototype.getLength = function(cb,params) {
+	var self = this;
+	return self.qconnect(self.database + "/count", 'GET', null, params, cb);
+};
+
+Flybase.prototype.dequeue = function(cb,params) {
+	var self = this;
+	return self.qconnect(self.database, 'GET', null, params, cb);
+};
+
 
 Flybase.prototype.push = function(documents, cb) {
 	var self = this;
 	if( cb ){
-		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);		
+		return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
 	}else{
 		return new Promise(function(resolve, reject) {
 			self.connect(self.database + '/collections/' + self.collection, 'POST', documents, null, function(data, err){
@@ -737,7 +827,7 @@ Flybase.prototype.insert = function(documents, cb) {
 					reject( false );
 				}
 			});
-		});		
+		});
 	}
 //	return self.connect(self.database + '/collections/' + this.collection, 'POST', documents, null, cb);
 };
@@ -771,7 +861,7 @@ Flybase.prototype.update = function(condition, params, cb) {
 					reject( false );
 				}
 			});
-		});		
+		});
 	}
 };
 
@@ -872,7 +962,7 @@ Flybase.prototype.remove = function(id, cb) {
 				}
 			});
 		});
-	}	
+	}
 };
 Flybase.prototype.deleteDocument = function(id, cb) {
 	var self = this;
@@ -888,7 +978,7 @@ Flybase.prototype.deleteDocument = function(id, cb) {
 				}
 			});
 		});
-	}			
+	}
 };
 Flybase.prototype.deleteId = function(id, cb) {
 	var self = this;
@@ -904,7 +994,7 @@ Flybase.prototype.deleteId = function(id, cb) {
 				}
 			});
 		});
-	}			
+	}
 };
 
 Flybase.prototype.transaction = function( updateFunction, cb){
@@ -932,6 +1022,10 @@ Flybase.prototype.transaction = function( updateFunction, cb){
 		}
 		this.logger().log( d );
 	}
+};
+
+Flybase.prototype.isEmpty = function(val){
+    return (val === undefined || val == null || val.length <= 0) ? true : false;
 };
 
 //	format return values into a object with helper functions...
@@ -967,7 +1061,7 @@ Flybase.prototype.processData = function ( data ){
 			}
 		};
 		var Processed = obj;
-	}else if ( !toProcess.length ) { 
+	}else if ( !toProcess.length ) {
 		//	single variable...
 		var obj = {
 			'data': toProcess,
@@ -1000,8 +1094,8 @@ Flybase.prototype.processData = function ( data ){
 			retVal[i] = obj;
 		}
 		var Processed = retVal;
-	}			
-	
+	}
+
 //	single variable...
 	var data = {
 		'data': Processed,
@@ -1025,14 +1119,14 @@ Flybase.prototype.processData = function ( data ){
 				var d = this.data[ 0 ];
 				return d;
 			}else{
-				return this.data;				
+				return this.data;
 			}
 		},
 		count : function(){
 			if (typeof this.data.length == 'undefined' ){
 				return null;
 			}else{
-				return this.data.length;	
+				return this.data.length;
 			}
 		},
 		forEach : function( cb ){
@@ -1047,7 +1141,7 @@ Flybase.prototype.processData = function ( data ){
 			return self;
 		}
 	};
-	
+
 	return data;
 };
 
@@ -1087,13 +1181,12 @@ function mockconsole(){
 	var l = methods.length;
 	var fn = function () {};
 	var mockconsoleObj = {};
-	
+
 	while (l--) {
 	    mockconsoleObj[methods[l]] = fn;
 	}
 	return mockconsoleObj;
 }
-
 
 // ======================================================
 // EXPORTS
