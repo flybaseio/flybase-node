@@ -1034,6 +1034,9 @@ Flybase.prototype.processData = function ( data ){
 	var retVal = [];
 	var raw = data;
 
+	//	reset the query for the next query
+	self.query = {};
+
 	var IS_JSON = true;
 	try{
 		var json = JSON.parse( data );

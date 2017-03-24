@@ -8,9 +8,8 @@ flybase.push( {name:"node", text:"test"}, function(data){
 	console.log("pushed good");
 });
 
-
 var cb = function(object, error){
-	console.log( object );	
+	console.log( object );
 };
 
 console.log( 'connected to ' + flybase.toString() );
@@ -32,9 +31,9 @@ flybase.limitToLast(10).on('value', function (data) {
 	});
 });
 
-/* 
+/*
 flybase.collections( function(object, error){
-	console.log( object );	
+	console.log( object );
 });
 */
 /*
