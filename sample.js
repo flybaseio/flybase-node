@@ -1,14 +1,13 @@
-var api_key = '359726fc-3a49-4d6a-bdc3-2470218dd1e5';
-var db = 'demotest';
-var collection = 'messagesfive';
+var api_key = 'YOUR-API-KEY';
+var db = 'test';
+var collection = 'chat';
 
 var flybase = require('./flybase').init(db, collection, api_key);
 
-/*
 flybase.push( {name:"node", text:"test"}, function(data){
 	console.log("pushed good");
 });
-*/
+
 var cb = function(object, error){
 	console.log( object );
 };
@@ -22,13 +21,13 @@ flybase.documents(params, function(data, err) {
 
 flybase.on('added', function (data) {
 	var message = data.value();
-	console.log( message.fromName+': '+message.message );
+	console.log( message.name+': '+message.text );
 });
 
-flybase.limitToLast(50).on('value', function (data) {
+flybase.limitToLast(10).on('value', function (data) {
 	data.forEach( function( message ){
 		var message = message.value();
-		console.log( message.fromName+': '+message.message );
+		console.log( message.name+': '+message.text );
 	});
 });
 
