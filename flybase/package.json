@@ -1,6 +1,6 @@
 {
   "name": "flybase",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Flybase.io library for Node.js",
   "main": "./index.js",
   "keywords": [
@@ -36,7 +36,7 @@
     "install": "^0.8.4",
     "md5": "^2.2.1",
     "node-fetch": "^1.6.3",
-    "socket.io-client": "^1.7.2"
+    "socket.io-client": "^2.0.3"
   },
   "_from": "flybase@",
   "_npmVersion": "1.2.21",

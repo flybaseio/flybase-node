@@ -229,7 +229,12 @@ Flybase.prototype.toString = function(){
 
 Flybase.prototype.startWebSocket = function ( channel ){
 	var _this = this;
-	this.socket = require('socket.io-client')('http://push.flybase.io',{forceNew: true});
+	this.socket = require('socket.io-client')(
+		'http://push.flybase.io',{
+		forceNew: true,
+		'pingTimeout': 7000,
+		'pingInterval': 3000
+	});
 
 	var data = {};
 	data.room = this.room;
